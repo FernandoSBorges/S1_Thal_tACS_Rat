@@ -67,6 +67,8 @@ ASSIGNED {
 	v (mV) 
 	celsius (degC) : temperature - set in hoc; default is 6.3
 	dt (ms) 
+
+	q10
 } 
 
 BREAKPOINT {
@@ -88,8 +90,7 @@ PROCEDURE states() {	:Computes state variables m, h, and n
 	trates(v)	:      at the current v and dt.       
 	n = n + nexp*(ninf-n)
 }
- 
-LOCAL q10
+  
 PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
 	LOCAL  alpha, beta, sum, tinc

@@ -53,8 +53,9 @@ NEURON {
 	USEION k READ ek WRITE ik
 	RANGE n, gk, gbar
 	RANGE ninf, ntau
+	RANGE tadj
 	GLOBAL Ra, Rb
-	GLOBAL q10, temp, tadj, vmin, vmax
+	GLOBAL q10, temp, vmin, vmax
 }
 
 UNITS {

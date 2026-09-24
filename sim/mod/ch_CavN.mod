@@ -65,6 +65,8 @@ ASSIGNED {			: assigned (where?)
 	dtau (ms) 
 	cexp dexp      
 	myi (mA/cm2)
+
+	q10
 }
 
 BREAKPOINT {
@@ -91,8 +93,7 @@ PROCEDURE states() {	:Computes state variables m, h, and n
         :return 0;
         :ENDVERBATIM
 }
- 
-LOCAL q10
+
 
 PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.

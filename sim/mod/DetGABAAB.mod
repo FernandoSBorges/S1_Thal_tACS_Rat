@@ -108,15 +108,20 @@ DERIVATIVE state{
 }
 
 
-NET_RECEIVE (weight,weight_GABAA, weight_GABAB, R, Pr, u, tsyn (ms)){
-    LOCAL result
+NET_RECEIVE (weight, weight_GABAA, weight_GABAB, R, Pr, u, tsyn (ms), initialized) {
     weight_GABAA = weight
     weight_GABAB = weight * GABAB_ratio
 
-    INITIAL{
-            R=1
-            u=u0
-            tsyn=t
+    : NEURON 9/CoreNEURON GPU workaround:
+    : avoid NET_RECEIVE INITIAL, whose generated OpenACC code can make
+    : NVC++ treat per-NetCon state arguments as unbounded arrays.
+    : Extra NET_RECEIVE arguments are initialized to 0, so use a dedicated
+    : per-NetCon flag and initialize the STP state on the first event.
+    if (initialized == 0) {
+        R = 1
+        u = u0
+        tsyn = 0
+        initialized = 1
     }
 
     : calc u at event-
@@ -134,23 +139,15 @@ NET_RECEIVE (weight,weight_GABAA, weight_GABAB, R, Pr, u, tsyn (ms)){
     Pr  = u * R                         :Pr is calculated as R * u (running value of Use)
     R  = R - u * R                      :update R as per Eq. 3 in Fuhrmann et al.
 
-    if( verboseLevel > 0 ) {
-        printf("Synapse %f at time %g: R = %g Pr = %g erand = %g\n", synapseID, t, R, Pr, result )
-    }
-
     tsyn = t
 
     A_GABAA = A_GABAA + Pr*weight_GABAA*factor_GABAA
     B_GABAA = B_GABAA + Pr*weight_GABAA*factor_GABAA
     A_GABAB = A_GABAB + Pr*weight_GABAB*factor_GABAB
     B_GABAB = B_GABAB + Pr*weight_GABAB*factor_GABAB
-
-    if( verboseLevel > 0 ) {
-        printf( " vals %g %g %g %g\n", A_GABAA, weight_GABAA, factor_GABAA, weight )
-    }
 }
 
 
-FUNCTION toggleVerbose() {
-    verboseLevel = 1-verboseLevel
+PROCEDURE toggleVerbose() {
+    verboseLevel = 1 - verboseLevel
 }

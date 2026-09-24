@@ -2,11 +2,10 @@ TITLE K-D
 : K-D current for prefrontal cortical neuron ------Yuguo Yu  2007
 
 NEURON {
-     THREADSAFE
+    THREADSAFE
 	SUFFIX KdShu2007
 	USEION k WRITE ik
-	RANGE  gkbar, ik, ek
-	GLOBAL minf, mtau, hinf, htau
+	RANGE  gkbar, ik, ek, minf, mtau, hinf, htau
 }
 
 PARAMETER {
@@ -18,7 +17,7 @@ PARAMETER {
 	vhalfm=-43  (mV)
 	km=8
 	vhalfh=-67  (mV) 
-      kh=7.3
+    kh=7.3
 	q10=2.3
 }
 

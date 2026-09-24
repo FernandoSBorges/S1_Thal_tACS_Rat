@@ -3,7 +3,7 @@ batch.py
 
 Batch simulation for S1-thalamus model using NetPyNE
 
-Contributors: salvadordura@gmail.com, fernandodasilvaborges@gmail.com
+Contributors: diogoleonaisouza@gmail.com, salvadordura@gmail.com, fernandodasilvaborges@gmail.com
 """
 from netpyne.batch import Batch
 from netpyne import specs
@@ -78,7 +78,7 @@ def setRunCfg(b, type='mpi_bulletin'):
 if __name__ == '__main__': 
     b = custom() #
 
-    b.batchLabel = 'v1_batch1'  
+    b.batchLabel = 'v1_batch2'  
     b.saveFolder = '../data/'+b.batchLabel
     b.method = 'grid'
     setRunCfg(b, 'mpi_direct2')

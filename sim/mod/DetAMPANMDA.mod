@@ -41,7 +41,6 @@ PARAMETER {
     Fac = 10           (ms)  : Relaxation time constant from facilitation
     e = 0              (mV)  : AMPA and NMDA reversal potential
     mg = 1             (mM)  : Initial concentration of mg2+
-    mggate
     gmax = .001        (uS)  : Weight conversion factor (from nS to uS)
     u0 = 0                   : Initial value of u, which is the running value of Use
     NMDA_ratio = 1.22 (1) : The peak ratio of NMDA to AMPA (from Myme et al. 2003)
@@ -58,6 +57,7 @@ ASSIGNED {
     g_AMPA (uS)
     g_NMDA (uS)
     g (uS)
+    mggate
     factor_AMPA
     factor_NMDA
 }
@@ -110,15 +110,20 @@ DERIVATIVE state{
 }
 
 
-NET_RECEIVE (weight,weight_AMPA, weight_NMDA, R, Pr, u, tsyn (ms)){
-    LOCAL result
+NET_RECEIVE (weight, weight_AMPA, weight_NMDA, R, Pr, u, tsyn (ms), initialized) {
     weight_AMPA = weight
     weight_NMDA = weight * NMDA_ratio
 
-    INITIAL{
-            R=1
-            u=u0
-            tsyn=t
+    : NEURON 9/CoreNEURON GPU workaround:
+    : avoid NET_RECEIVE INITIAL, whose generated OpenACC code can make
+    : NVC++ treat per-NetCon state arguments as unbounded arrays.
+    : Extra NET_RECEIVE arguments are initialized to 0, so use a dedicated
+    : per-NetCon flag and initialize the STP state on the first event.
+    if (initialized == 0) {
+        R = 1
+        u = u0
+        tsyn = 0
+        initialized = 1
     }
 
     : calc u at event-
@@ -136,9 +141,6 @@ NET_RECEIVE (weight,weight_AMPA, weight_NMDA, R, Pr, u, tsyn (ms)){
     Pr  = u * R                         :Pr is calculated as R * u (running value of Use)
     R  = R - u * R                      :update R as per Eq. 3 in Fuhrmann et al.
 
-    if( verboseLevel > 0 ) {
-        printf("Synapse %f at time %g: R = %g Pr = %g erand = %g\n", synapseID, t, R, Pr, result )
-    }
 
     tsyn = t
 
@@ -147,12 +149,9 @@ NET_RECEIVE (weight,weight_AMPA, weight_NMDA, R, Pr, u, tsyn (ms)){
     A_NMDA = A_NMDA + Pr*weight_NMDA*factor_NMDA
     B_NMDA = B_NMDA + Pr*weight_NMDA*factor_NMDA
 
-    if( verboseLevel > 0 ) {
-        printf( " vals %g %g %g %g\n", A_AMPA, weight_AMPA, factor_AMPA, weight )
-    }
 }
 
 
-FUNCTION toggleVerbose() {
-    verboseLevel = 1-verboseLevel
+PROCEDURE toggleVerbose() {
+    verboseLevel = 1 - verboseLevel
 }
